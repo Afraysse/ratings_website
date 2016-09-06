@@ -15,7 +15,7 @@ db = SQLAlchemy()
 class User(db.Model):
     """User of ratings website."""
 
-    __tablename__ = "users"
+    __tablename__ = "user"
 
     user_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     email = db.Column(db.String(64), nullable=True)
