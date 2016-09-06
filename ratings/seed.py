@@ -111,6 +111,39 @@ def set_val_user_id():
     db.session.execute(query, {'new_id': max_id + 1})
     db.session.commit()
 
+def make_wizard():
+    """ Make wizard in DB. """ 
+
+    wizard = User(email="wizard@gmail.com", password="wizard", age=None, zipcode=None)
+    db.session.add(wizard)
+    db.session.commit()
+
+def give_wizard_ratings():
+    """ Make wizard ratings to show beratement messages."""
+
+    wizard = User.query.filter_by(email="wizard@gmail.com").one() 
+
+    r1 = Ratings(user_id=wizard.user_id, movie_id=1, score=1)
+    db.session.add(r1)
+
+    r2 = Ratings(user_id=wizard.user_id, movie_id=273, score=4)
+    db.session.add(r2)
+
+    r3 = Ratings(user_id=wizard.user_id, movie_id=234, score=5)
+    db.session.add(r3)
+
+    r4 = Ratings(user_id=wizard.user_id, movie_id=100, score=1)
+    db.session.add(r4)
+
+    r5 = Ratings(user_id=wizard.user_id, movie_id=1000, score=5)
+    db.session.add(r5)
+
+    r6 = Ratings(user_id=wizard.user_id, movie_id=879, score=1)
+    db.session.add(r6)
+
+    db.session.commit()
+
+########################################################################
 
 if __name__ == "__main__":
     connect_to_db(app)
