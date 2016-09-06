@@ -37,9 +37,66 @@ def load_users():
 def load_movies():
     """Load movies from u.item into database."""
 
+    print "Movies"
+
+    # delete all rows in table, so if need to run a second time,
+    # we won't be trying ot add duplicate users 
+    Movie.query.delete()
+
+    # Read u.item file and insert data 
+    for row in open("seed_data/u.item"):
+        row = row.rstrip()
+        movie_info = row.split("|")
+
+        # grab movie information
+
+        movie_id = movie_info[0]
+        movie_title = movie_info[1]
+
+        # remove whitespace from end of movie_title string
+        movie_title = movie_title.rstrip()
+        movie_title = movie_title[:-7]
+
+        release_string = movie_info[2]
+
+        if release_string:
+            release_date = datetime.datetime.strptime(release_string, "%d-%b-%Y")
+        else:
+            release_date = None
+
+        url = movie_info[4]
+
+        movie = Movies(movie_id=movie_id, movie_title=movie_title,
+                        release_date=release_date, url=url)
+
+        # add to session 
+        db.session.add(movie)
+
+    # commit to session
+    db.session.commit()
 
 def load_ratings():
     """Load ratings from u.data into database."""
+
+    print "Ratings"
+
+    Ratings.query.delete()
+
+    for row in open("seed_data/u.data"):
+        row = row.rstrip()
+
+        rating_info = row.split("|")
+
+        
+
+        rating = Ratings(rating_id=rating_id,
+                        user_id=user_id,
+                        movie_id=movie_id,
+                        score=score)
+
+        db.session.add(rating) 
+
+    db.session.commit()
 
 
 def set_val_user_id():

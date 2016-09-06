@@ -23,9 +23,35 @@ class User(db.Model):
     age = db.Column(db.Integer, nullable=True)
     zipcode = db.Column(db.String(15), nullable=True)
 
+    def __repr__(self):
+        "<User id={}>".format(users.user_id)
 
-# Put your Movie and Rating model classes here.
+class Movies(db.Model):
+    """ Movies on ratings website."""
 
+    __tablename__ = "movie"
+
+    movie_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    movie_title = db.Column(db.Integer, nullable=False)
+    release_date = db.Column(db.String, nullable=False)
+    url = db.Column(db.String)
+
+    def __repr__(self):
+        "<Movie id={}>".format(movie.movie_id)
+
+class Ratings(db.Model):
+    """ Ratings submitted by users."""
+
+    __tablename__ = "rating"
+
+    rating_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id')) 
+    movie_id = db.Column(db.Integer, db.ForeignKey('movie.movie_id'))
+    score = db.Column(db.Integer)
+
+    # establish backref relationships
+    user = db.relationship("User", backref=db.backref('users', order_by=user_id))
+    movie = db.relationship("Movies", backref=db.backref('movie', order_by=movie_id))
 
 ##############################################################################
 # Helper functions
