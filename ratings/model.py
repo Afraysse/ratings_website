@@ -24,7 +24,7 @@ class User(db.Model):
     zipcode = db.Column(db.String(15), nullable=True)
 
     def __repr__(self):
-        "<User id={}>".format(users.user_id)
+        "<User id={}>".format(user.user_id)
 
     def similarity(self, other):
         """ Return pearson rating for user compared to other user."""
@@ -87,12 +87,12 @@ class Ratings(db.Model):
     __tablename__ = "rating"
 
     rating_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id')) 
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id')) 
     movie_id = db.Column(db.Integer, db.ForeignKey('movie.movie_id'))
     score = db.Column(db.Integer)
 
     # establish backref relationships
-    user = db.relationship("User", backref=db.backref('users', order_by=user_id))
+    user = db.relationship("User", backref=db.backref('user', order_by=user_id))
     movie = db.relationship("Movies", backref=db.backref('movie', order_by=movie_id))
 
 ##############################################################################

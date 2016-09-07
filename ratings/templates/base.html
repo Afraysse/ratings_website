@@ -1,132 +1,86 @@
-<!--A Design by W3layouts
-Author: W3layout
-Author URL: http://w3layouts.com
-License: Creative Commons Attribution 3.0 Unported
-License URL: http://creativecommons.org/licenses/by/3.0/
+<!--
+  Author: W3layouts
+  Author URL: http://w3layouts.com
+  License: Creative Commons Attribution 3.0 Unported
+  License URL: http://creativecommons.org/licenses/by/3.0/
 -->
-<!DOCTYPE HTML>
+
+<!DOCTYPE html>
 <html>
 <head>
-    <title>MyMovies: Find movies you love and compare your ratings with the Wizard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="keywords" content="MyMovies: Find movies you love and compare your ratings with the Wizard" />
+  <title>Movie Marks: Mark your favorite movie!</title>
 
-    <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+   <!-- Bootstrap -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
 
-    <link rel="icon" href="/static/images/clapper_board.png" type="image" sizes="16x16">
-    <link href="/static/css/bootstrap.css" rel='stylesheet' type='text/css' />
-    <link href="/static/css/style.css" rel="stylesheet" type="text/css" media="all" />
-    <link href="/static/css/table_style.css" rel='stylesheet' type='text/css' />
+  <!-- Google Fonts --> 
+  <link href="https://fonts.googleapis.com/css?family=Lobster" rel="stylesheet">
 
-    <!-- Font Awesome icons -->
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" >
+<style>
 
-    <!-- start plugins -->
-    <script type="text/javascript" src="/static/js/jquery-1.11.1.min.js"></script>
+.navbar-default {
+  background-color: black;
+}
+.navbar-nav {
+  font-family: 'Lobster', cursive;
+  font-size: 1.3em;
+}
 
-    <link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:100,200,300,400,500,600,700,800,900' rel='stylesheet' type='text/css'>
-</head>
+.navbar-brand {
+  font-family: 'Lobster', cursive;
+  font-size: 2em;
+}
+
+</style>
+
 
 <body>
-<div class="container">
-    <div class="container_wrap">
-        <div class="header_top">
-            <div class="col-sm-3 logo" id="logo-text">
-                <a href="/">
-                    <img src="/static/images/clapper_board.png" id="logo-img">
-                    MyMovies
-                </a>
-            </div>
-            <div class="col-sm-offset-5 col-sm-4 header_right">
-               <ul class="header_right_box">
-                <!-- Show login message and user profile if user is logged in -->
-                 {% if session.get('logged_in_user_email') %}
-                     <!-- <li>You are currently logged in</li> -->
-                     <li><p><a href="/movies">Movies</a></p></li>
-                     <li><p><a href="/users/{{session.logged_in_user}}">Profile</a></p></li>
-                     <li><p><a href="/logout">Log Out</a></p></li>
-                 {% else %}
-                     <li><p><a href="/signup-login">Sign up/Log In</a></p></li>
-                 {% endif %}
-                 <!-- <li class="last"><i class="edit"> </i></li> -->
-                 <div class="clearfix"> </div>
-               </ul>
-            </div>
-            <div class="clearfix"> </div>
-        </div>
-          
-        <div class="content">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                  <div class="flash-messages">
-                    {% for category, message in messages %}
-                      <div class="alert alert-{{ category }} alert-dismissible" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        {{ message }}
-                      </div>
-                    {% endfor %}
-                  </div>
-                {% endif %}
-            {% endwith %}
-        </div>
-
-        {% block content %} put your content here {% endblock %}
-
-
-        <footer id="footer">
-            <div id="footer-3d">
-                <div class="gp-container">
-                    <span class="first-widget-bend"> </span>
-                </div>      
-            </div>
-            <div id="footer-widgets" class="gp-footer-larger-first-col">
-                <div class="gp-container">
-                    <div class="footer-widget footer-1">
-                        <div class="wpb_wrapper">
-                            MyMovies
-                        </div> 
-                      <br>
-                      <p>Find movies you love and compare your ratings with the Wizard!</p>
-                      <p class="text">Let's see what your taste in movies is like.</p>
-                     </div>
-                     <div class="footer_box">
-                         <div class="col_1_of_3 span_1_of_3">
-                         </div>
-                         <div class="col_1_of_3 span_1_of_3">
-                         </div>
-                         <div class="col_1_of_3 span_1_of_3 footer-names">
-                            <p>Built by:</p>
-                            <ul>
-                                <li>
-                                    Allison Scofield
-                                    <a href="https://github.com/allisonscofield/ratings">
-                                      <span class="fa fa-github fa-lg" aria-hidden="true"></span>
-                                      Github
-                                    </a>
-                                </li>
-                                <li>Ashley Hsiao
-                                    <a href="https://github.com/ashleyhsia0/mymovies">
-                                      <span class="fa fa-github fa-lg" aria-hidden="true"></span>
-                                      Github
-                                    </a>
-                                </li>
-                            </ul>
-                            <div class="copy">
-                              <p>&copy; 2015 Template by <a href="http://w3layouts.com" target="_blank"> w3layouts</a></p>
-                            </div>
-                         </div>
-                    <div class="clearfix"> </div>
-                    </div>
-                    <div class="clearfix"> </div>
-                </div>
-            </div>
-          </footer>
-
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Movie Marks</a>
     </div>
-</div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="/users">Users</a></li>
+        <li><a href="/movies">Make New Rating!</a></li>
+        <li><a href="/logout">Logout</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<div class="content">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+  {% endwith %}
+    </div>
+
+{% block content %} put your content here {% endblock %}
+
+        <div class="footer-agilew3">
+      <center><p> &copy; 2016 Movie Marks. All Rights Reserved | Design by  <a href="http://w3layouts.com/"> W3layouts</a></p></center>
+  </div>
 <!-- <div class="container">  -->
- 
-<!-- </div>  -->    
+
+<!-- </div>  -->  
 </body>
 </html>

@@ -19,6 +19,8 @@ app.secret_key = "ABC"
 # error.
 app.jinja_env.undefined = StrictUndefined
 
+########################################################################
+
 @app.template_filter()
 def datetimefilter(value, format='%b %d'):
     """ Convert a datetime format for accessiblity in Jinja. """
@@ -26,6 +28,8 @@ def datetimefilter(value, format='%b %d'):
     return value.strftime(format)
 
 app.jinja_env.filters['datetimefilter'] = datetimefilter
+
+########################################################################
 
 @app.route('/')
 def index():
@@ -35,6 +39,7 @@ def index():
     if user_email is not None:
         user = User.query.filter(User.email == user_email).one()
         return render_template("homepage.html", user=user)
+    return render_template("homepage.html")
 
 @app.route('/users')
 def user_list():
@@ -50,7 +55,7 @@ def user_profile(user_id):
 
     # Each user's profile page 
 
-    user = User.query.filter_by(User.user_id == user_id).one() 
+    user = User.query.filter(User.user_id == user_id).one() 
 
     # Need to query to get all movies rated by user 
     # Join Ratings and Movies and filter by user_id
@@ -60,18 +65,18 @@ def user_profile(user_id):
     user_movies = db.session.query(Ratings.user_id,
                                     Ratings.movie_id,
                                     Ratings.score,
-                                    Movies.title).join(Movies).filter(Ratings.user_id == user_id).order_by(Movies.movie_title).all()
+                                    Movies.movie_title).join(Movies).filter(Ratings.user_id == user_id).order_by(Movies.movie_title).all()
 
     # user and user_movies can now be passed into jinja 
     # can be called on its attributes to display information 
     return render_template("user_profile.html", user=user, user_movies=user_movies)
 
-@app.route('/register-login', methods=['GET'])
-def register_login():
-    """ Shows login and register forms."""
+# @app.route('/register-login', methods=['GET'])
+# def register_login():
+#     """ Shows login and register forms."""
 
-    # display forms for login or register
-    return render_template('register_login.html')
+#     # display forms for login or register
+#     return render_template('register_login.html')
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -111,7 +116,7 @@ def login():
     # if yes, log user in 
 
     if db.session.query(User).filter(User.email == login_email,
-                                        User.password = login_password).first():
+                                        User.password == login_password).first():
         flash("Login success! Welcome!", "success")
 
         # query for user_id to to redirect user to their profile page 
@@ -127,7 +132,7 @@ def login():
     # for incorrect credentials  
     else:
         flash("Wrong password! Please try again!", "danger")
-        return redirect('/register_login')
+        return redirect('/')
 
 @app.route('/logout')
 def logout():
@@ -145,11 +150,11 @@ def movie_list():
     """ like users, shows list of movies. """
 
     # query for movies alphabetically by title 
-    movies = Movies.query.order_by(Movie.movie_title).all() 
+    movies = Movies.query.order_by(Movies.movie_title).all() 
 
     return render_template("movie_list.html", movies=movies)
 
-@app.route('/movies/<int:movie_id', methods=['GET'])
+@app.route('/movies/<int:movie_id>', methods=['GET'])
 def movie_profile(movie_id):
     """ 
     Shows information for each movie. Allows logged in users to 
@@ -246,7 +251,7 @@ def movie_profile(movie_id):
                                 count_score=count_score, prediction=prediction,
                                 ratings=ratings, beratement=beratement)
 
-@app.route('/movies/int:movie_id>/rate-movie')
+@app.route('/movies/<int:movie_id>/rate-movie')
 def rate_movie(movie_id):
     """ User rating score for each movie."""
 

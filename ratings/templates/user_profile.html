@@ -4,6 +4,10 @@
 
 <style>
 
+h2 {
+  font-family: 'Lobster', cursive;
+}
+
 .wrapper {
   margin: 0 auto;
   padding: 0 40px;
@@ -57,33 +61,39 @@
     display: block;
   }
 }
+
 </style>
+
+<div class="content">
+    <center><h2>My Movies</h2></center>
 
     <div class="wrapper">
       <div class="table">
         
         <div class="row header">
           <div class="cell">
-            <u>Title</u>
+            <u>Movie</u>
+          </div>
+          <div class="cell">
+            <u>Score</u>
           </div>
         </div>
         
-        {% for movie in movies %}
-          {% if movie.movie_id == 267 %}
-            <div></div>
-          {% else %}
-            <div class="row">
-              <div class="cell">
-                <p><a href="/movies/{{ movie.movie_id }}">{{ movie.title }}</a></p>
-              </div>
-            </div>
-          {% endif %}
+        {% for movie in user_movies %}
+        <div class="row">
+          <div class="cell">
+            <p><a href="/movies/{{ movie.movie_id }}">{{ movie.title }}</a></p>
+          </div>
+          <div class="cell">
+            <p>{{ movie.score }}</p>
+          </div>
+        </div>
         {% endfor %}
-        
-      </div>
+      </div>      
     </div>
+    
 </div>
 
-
-
 {% endblock %}
+</body>
+</html>
