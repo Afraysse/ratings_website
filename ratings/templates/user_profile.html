@@ -1,99 +1,23 @@
 {% extends 'base.html' %}
-
 {% block content %}
+<br>
+<div class="well spaced" style="width:97%">
+  <h2>{{ user.email }} ({{ user.user_id }})</h2>
 
-<style>
+  <b><p style="color:red">Age: {{ user.age }}</p>
+  <p style="color:red">Zipcode: {{ user.zipcode }}</p></b>
 
-h2 {
-  font-family: 'Lobster', cursive;
-}
+  {% if user.rating %}
 
-.wrapper {
-  margin: 0 auto;
-  padding: 0 40px;
-  max-width: 800px;
-}
-
-.table {
-  margin: 0 0 40px 0;
-  width: 100%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  display: table;
-}
-@media screen and (max-width: 580px) {
-  .table {
-    display: block;
-  }
-}
-
-.row {
-  display: table-row;
-  background: #f6f6f6;
-}
-.row:nth-of-type(odd) {
-  background: #e9e9e9;
-}
-.row.header, .row.footer {
-  font-weight: 900;
-  color: #ffffff;
-  background: #ea6153;
-}
-.row.green {
-  background: #27ae60;
-}
-.row.blue {
-  background: #2980b9;
-}
-@media screen and (max-width: 580px) {
-  .row {
-    padding: 8px 0;
-    display: block;
-  }
-}
-
-.cell {
-  padding: 6px 12px;
-  display: table-cell;
-}
-@media screen and (max-width: 580px) {
-  .cell {
-    padding: 2px 12px;
-    display: block;
-  }
-}
-
-</style>
-
-<div class="content">
-    <center><h2>My Movies</h2></center>
-
-    <div class="wrapper">
-      <div class="table">
-        
-        <div class="row header">
-          <div class="cell">
-            <u>Movie</u>
-          </div>
-          <div class="cell">
-            <u>Score</u>
-          </div>
-        </div>
-        
-        {% for movie in user_movies %}
-        <div class="row">
-          <div class="cell">
-            <p><a href="/movies/{{ movie.movie_id }}">{{ movie.title }}</a></p>
-          </div>
-          <div class="cell">
-            <p>{{ movie.score }}</p>
-          </div>
-        </div>
-        {% endfor %}
-      </div>      
-    </div>
-    
+    <h3>Ratings</h3>
+    <ul>
+    {% for rating in user.ratings %}
+      <li>
+        <a href="/movies/{{ rating.movie_id }}">{{ rating.movie.title }}</a>
+        was rated {{ rating.score }}
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
 </div>
-
 {% endblock %}
-</body>
-</html>

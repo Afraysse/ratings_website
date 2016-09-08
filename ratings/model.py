@@ -1,6 +1,7 @@
 """Models and database functions for Ratings project."""
 
 from flask_sqlalchemy import SQLAlchemy
+import correlation
 
 # This is the connection to the PostgreSQL database; we're getting this through
 # the Flask-SQLAlchemy helper library. On this, we can find the `session`
@@ -15,7 +16,7 @@ db = SQLAlchemy()
 class User(db.Model):
     """User of ratings website."""
 
-    __tablename__ = "user"
+    __tablename__ = "users"
 
     user_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     email = db.Column(db.String(64), nullable=True)
@@ -24,13 +25,13 @@ class User(db.Model):
     zipcode = db.Column(db.String(15), nullable=True)
 
     def __repr__(self):
-        "<User id={}>".format(user.user_id)
+        return "<User user_id=%s email=%s>" % (self.user_id, self.email)
 
     def similarity(self, other):
         """ Return pearson rating for user compared to other user."""
 
         u_ratings = {}
-        paired_ratings = {} 
+        paired_ratings = []
 
         for r in self.ratings:
             u_ratings[r.movie_id] = r 
@@ -68,32 +69,35 @@ class User(db.Model):
 
         return numerator / denominator
 
-class Movies(db.Model):
+class Movie(db.Model):
     """ Movies on ratings website."""
 
-    __tablename__ = "movie"
+    __tablename__ = "movies"
 
     movie_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    movie_title = db.Column(db.Integer, nullable=False)
-    release_date = db.Column(db.String, nullable=False)
-    url = db.Column(db.String)
+    title = db.Column(db.String(100), nullable=False)
+    release_date = db.Column(db.DateTime)
+    imdb_url = db.Column(db.String(200))
+    sequel_of_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'))
+
+    sequel_of = db.relationship("Movie")
 
     def __repr__(self):
-        "<Movie id={}>".format(movie.movie_id)
+        "<Movie movie_id={} title={}>".format(self.movie_id, self.title)
 
-class Ratings(db.Model):
+class Rating(db.Model):
     """ Ratings submitted by users."""
 
-    __tablename__ = "rating"
+    __tablename__ = "ratings"
 
     rating_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id')) 
-    movie_id = db.Column(db.Integer, db.ForeignKey('movie.movie_id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id')) 
+    movie_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'))
     score = db.Column(db.Integer)
 
     # establish backref relationships
-    user = db.relationship("User", backref=db.backref('user', order_by=user_id))
-    movie = db.relationship("Movies", backref=db.backref('movie', order_by=movie_id))
+    user = db.relationship("User", backref=db.backref('users', order_by=rating_id))
+    movie = db.relationship("Movie", backref=db.backref('movies', order_by=rating_id))
 
 ##############################################################################
 # Helper functions

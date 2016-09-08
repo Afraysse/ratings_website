@@ -1,12 +1,9 @@
 """Utility file to seed ratings database from MovieLens data in seed_data/"""
 
 from sqlalchemy import func
-from model import User
-# from model import Rating
-# from model import Movie
-
-from model import connect_to_db, db
+from model import User, Rating, Movie, connect_to_db, db
 from server import app
+import datetime
 
 
 def load_users():
@@ -16,22 +13,21 @@ def load_users():
 
     # Delete all rows in table, so if we need to run this a second time,
     # we won't be trying to add duplicate users
-    User.query.delete()
 
-    # Read u.user file and insert data
-    for row in open("seed_data/u.user"):
+    for i, row in enumerate(open("seed_data/u.user")):
         row = row.rstrip()
         user_id, age, gender, occupation, zipcode = row.split("|")
 
-        user = User(user_id=user_id,
-                    age=age,
-                    zipcode=zipcode)
+        user = User(age=age, zipcode=zipcode)
 
-        # We need to add to the session or it won't ever be stored
         db.session.add(user)
 
-    # Once we're done, we should commit our work
+        # for progress
+        if i % 100 == 0:
+            print i 
+
     db.session.commit()
+
 
 
 def load_movies():
@@ -39,40 +35,27 @@ def load_movies():
 
     print "Movies"
 
-    # delete all rows in table, so if need to run a second time,
-    # we won't be trying ot add duplicate users 
-    Movie.query.delete()
-
-    # Read u.item file and insert data 
-    for row in open("seed_data/u.item"):
+    for i, row in enumerate(open("seed_data/u.item")):
         row = row.rstrip()
-        movie_info = row.split("|")
 
-        # grab movie information
+        movie_id, title, released_str, junk, imdb_url = row.split("|")[:5]
 
-        movie_id = movie_info[0]
-        movie_title = movie_info[1]
+    if released_str:
+        released_at = datetime.datetime.strptime(released_str, "%d-%b-%Y")
+    else:
+        released_at = None
 
-        # remove whitespace from end of movie_title string
-        movie_title = movie_title.rstrip()
-        movie_title = movie_title[:-7]
+        title = title[:-7]
 
-        release_string = movie_info[2]
+        movie = Movie(title=title,
+                        released_at=released_at,
+                        imdb_url=imdb_url)
 
-        if release_string:
-            release_date = datetime.datetime.strptime(release_string, "%d-%b-%Y")
-        else:
-            release_date = None
-
-        url = movie_info[4]
-
-        movie = Movies(movie_id=movie_id, movie_title=movie_title,
-                        release_date=release_date, url=url)
-
-        # add to session 
         db.session.add(movie)
 
-    # commit to session
+        if i % 100 == 0:
+            print i 
+
     db.session.commit()
 
 def load_ratings():
@@ -80,66 +63,76 @@ def load_ratings():
 
     print "Ratings"
 
-    Ratings.query.delete()
-
-    for row in open("seed_data/u.data"):
+    for i, row in enumerate(open("seed_data/u.data")):
         row = row.rstrip()
 
-        rating_info = row.split("|")
+        user_id, movie_id, score, timestamp = row.split("\t")
 
-        
+        user_id = int(user_id)
+        movie_id = int(movie_id)
+        score = int(score)
 
-        rating = Ratings(rating_id=rating_id,
-                        user_id=user_id,
+        rating = Rating(user_id=user_id,
                         movie_id=movie_id,
                         score=score)
 
-        db.session.add(rating) 
+        db.session.add(rating)
+
+        if i % 1000 == 0:
+            print i 
 
     db.session.commit()
 
 
 def set_val_user_id():
-    """Set value for the next user_id after seeding database"""
+    """ Sets value for next user_id after seeding db."""
 
-    # Get the Max user_id in the database
+    # For Max user_id in db
     result = db.session.query(func.max(User.user_id)).one()
     max_id = int(result[0])
 
-    # Set the value for the next user_id to be max_id + 1
+    # set next user_id to be max_id + 1 
     query = "SELECT setval('users_user_id_seq', :new_id)"
     db.session.execute(query, {'new_id': max_id + 1})
     db.session.commit()
 
-def make_wizard():
-    """ Make wizard in DB. """ 
+def make_eye():
+    """ Generate user judgemental eye."""
 
-    wizard = User(email="wizard@gmail.com", password="wizard", age=None, zipcode=None)
-    db.session.add(wizard)
-    db.session.commit()
+    eye = User(email="the-eye@of-judgment.com", password="evil")
+    db.session.add(eye)
+    db.session.commmit()
 
-def give_wizard_ratings():
-    """ Make wizard ratings to show beratement messages."""
+def eye_ratings():
+    """ Build eye ratings."""
 
-    wizard = User.query.filter_by(email="wizard@gmail.com").one() 
+    eye = User.query.filter_by(email="the-eye@of-judgment.com").one()
 
-    r1 = Ratings(user_id=wizard.user_id, movie_id=1, score=1)
-    db.session.add(r1)
+    # store eye ratings for beratment messages 
 
-    r2 = Ratings(user_id=wizard.user_id, movie_id=273, score=4)
-    db.session.add(r2)
+        # Toy Story
+    r = Rating(user_id=eye.user_id, movie_id=1, score=1)
+    db.session.add(r)
 
-    r3 = Ratings(user_id=wizard.user_id, movie_id=234, score=5)
-    db.session.add(r3)
+    # Robocop 3
+    r = Rating(user_id=eye.user_id, movie_id=1274, score=5)
+    db.session.add(r)
 
-    r4 = Ratings(user_id=wizard.user_id, movie_id=100, score=1)
-    db.session.add(r4)
+    # Judge Dredd
+    r = Rating(user_id=eye.user_id, movie_id=373, score=5)
+    db.session.add(r)
 
-    r5 = Ratings(user_id=wizard.user_id, movie_id=1000, score=5)
-    db.session.add(r5)
+    # 3 Ninjas
+    r = Rating(user_id=eye.user_id, movie_id=314, score=5)
+    db.session.add(r)
 
-    r6 = Ratings(user_id=wizard.user_id, movie_id=879, score=1)
-    db.session.add(r6)
+    # Aladdin
+    r = Rating(user_id=eye.user_id, movie_id=95, score=1)
+    db.session.add(r)
+
+    # The Lion King
+    r = Rating(user_id=eye.user_id, movie_id=71, score=1)
+    db.session.add(r)
 
     db.session.commit()
 
