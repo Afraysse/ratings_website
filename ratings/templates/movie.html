@@ -1,67 +1,78 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="well spaced" style="width:97%;">
-<h1>{{ movie.title }}</h1>
+<style>
 
-    <div class="col-xs-12 col-lg-6">
-      {% if eye_rating %}
-          <h2>The Judgmental Eye</h2>
-          <p>Eye Rating: <b class="text-danger">{{ eye_rating }}</b></p>
-        {% if difference %}
-            <p>Difference: <b class="text-danger">{{ difference }}</b></p>
-        {% endif %}
-        {% if beratement %}
-          <p>The Eye says: <b class="text-danger">{{ beratement }}</b></p>
-        {% endif %}
-      {% endif %}
-      {% if "user_id" in session %}
-          <h2>Your Rating</h2>
-        {% if user_rating %}
-            <p>You currently rate this a {{ user_rating.score }}</p>
-        {% endif %}
-          <form action="/movies/{{ movie.movie_id }}" method="POST">
-              <div class="form-group">
-                  <label>Rating:
-                      <input type="number" name="score"
+.jumbotron {
+  margin-top: 40px;
+  height: 400px;
+}
+
+p {
+  font-family: 'Homenaje', sans-serif;
+  font-size: 10px;
+}
+
+a, input {
+  font-family: 'Homenaje', sans-serif;
+}
+
+
+
+</style>
+
+<div class="jumbotron top-header" id="user-info">
+    <div class="container">
+        <div class="row">
+          <div class="col-xs-12 col-md-2">
+            <img class="img-rounded img-responsive" height="300" width="300" src="/static/img/la_confidential.jpg">
+          </div>
+          <div class="col-xs-12 col-md-6">
+            <h2>{{ movie.title }}</h2>
+            <div class="col-xs-12 col-lg-6">
+              <p>Released: {{ movie.release_date }}</p>
+
+              <p>IMDB: <a href="{{ movie.imdb_url }}" style="color:#ffffff">{{ movie.imdb_url }}</a>
+              </p>
+
+              <p>Average rating: {{ average }}</p>
+                {% if prediction %}
+                  <p>We predict you will rate this movie {{ prediction }}.</p>
+                {% endif %}
+              {% if eye_rating %}
+              <p>Eye Rating: <b class="text-danger">{{ eye_rating }}</b></p>
+                {% endif %}
+              {% if difference %}
+              <p>Difference: <b class="text-danger">{{ difference }}</b></p>
+                {% endif %}
+              {% if beratement %}
+              <p>The Eye says: <b class="text-danger">{{ beratement }}</b></p>
+                {% endif %}
+
+              <i><a href="/rating_list" style="color:#ffffff">See All Ratings</a></i>
+            </div>
+          </div>
+          <div class="col-xs-12 col-md-4">
+              {% if "user_id" in session %}
+                <h2>Your Rating</h2>
+              {% if user_rating %}
+                <p>You currently rate this a {{ user_rating.score }}</p>
+              {% endif %}
+                <form action="/movies/{{ movie.movie_id }}" method="POST">
+                    <div class="form-group">
+                        <label>Rating:
+                          <input type="number" name="score"
                              class="form-control input-sm">
-                  </label>
-              </div>
-              <input type="submit" value="Record Your Puny Rating"
+                        </label>
+                    </div>
+                  <input type="submit" value="Record Your Puny Rating"
                      class="btn btn-danger">
-          </form>
-      {% endif %}
-
+                </form>
+              {% endif %}
+          </div>
+        </div><!-- /.row -->
+      </div>
     </div>
 
-<div class="row">
-
-    <div class="col-xs-12 col-lg-6">
-        <p>Released: {{ movie.release_date }}</p>
-
-        <p>IMDB: <a href="{{ movie.imdb_url }}">{{ movie.imdb_url }}</a>
-        </p>
-
-        <p>Average rating: {{ average }}</p>
-      {% if prediction %}
-          <p>We predict you will rate this movie {{ prediction }}.</p>
-      {% endif %}
-
-
-      {% if movie.ratings %}
-          <h2>Ratings</h2>
-          <ul>
-            {% for rating in movie.ratings %}
-                <li>
-                    <a href="/users/{{ rating.user_id }}">{{ rating.user_id }}</a>
-                    rated {{ rating.score }}</li>
-            {% endfor %}
-          </ul>
-      {% endif %}
-    </div>
-
-
-</div>
-</div>
 {% endblock %}
 

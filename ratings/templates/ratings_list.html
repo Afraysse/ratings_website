@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="row">
+
+    <div class="col-xs-12 col-lg-6">
+
+      {% if movie.ratings %}
+          <h2>Ratings</h2>
+          <ul>
+            {% for rating in movie.ratings %}
+                <li>
+                    <a href="/users/{{ rating.user_id }}">{{ rating.user_id }}</a>
+                    rated {{ rating.score }}</li>
+            {% endfor %}
+          </ul>
+      {% endif %}
+    </div>
+
+
+{% endblock %}

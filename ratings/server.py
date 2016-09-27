@@ -219,7 +219,7 @@ def movie_profile(movie_id):
                                         beratement=beratement)
 
 @app.route('/movies/<int:movie_id>', methods=['POST'])
-def movie_profile_post():
+def movie_profile_post(movie_id):
     """ Movie profile post."""
 
     score = int(request.form["score"])
@@ -241,6 +241,10 @@ def movie_profile_post():
     db.session.commit()
 
     return redirect("/movies/%s" % movie_id)
+
+# @app.route('/rating_list', methods=['GET']):
+# def movie_rating_list(movie_id):
+    
 
 
 #####################################################################################
