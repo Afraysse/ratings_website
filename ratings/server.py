@@ -58,7 +58,7 @@ def post_register():
     db.session.commit()
 
     flash("User %s added." % email)
-    return redirect('/')
+    return redirect('/login')
 
 
 @app.route('/login', methods=['GET'])
@@ -176,9 +176,9 @@ def movie_profile(movie_id):
 
     # get wizard's rating, either by predicting or using real rating
 
-    the_eye = (User.query.filter_by(email="the-eye@of-judgement.com").one())
+    the_eye = User.query.filter_by(email="eye@ratings.com").one()
 
-    eye_rating = Rating.query.filter_by(user_id=the_eye.user_id, movie_id=movie_id).first()
+    eye_rating = Rating.query.filter_by(user_id=the_eye.user_id, movie_id=movie.movie_id).first()
 
     if eye_rating is None:
         eye_rating = the_eye.predict_rating(movie)

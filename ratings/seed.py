@@ -1,9 +1,12 @@
 """Utility file to seed ratings database from MovieLens data in seed_data/"""
 
 from sqlalchemy import func
-from model import User, Rating, Movie, connect_to_db, db
-from server import app
+from model import User
+from model import Rating
+from model import Movie
 import datetime
+from model import connect_to_db, db
+from server import app
 
 
 def load_users():
@@ -14,47 +17,42 @@ def load_users():
     # Delete all rows in table, so if we need to run this a second time,
     # we won't be trying to add duplicate users
 
-    for i, row in enumerate(open("seed_data/u.user")):
+    for row in open("seed_data/u.user"):
         row = row.rstrip()
+
         user_id, age, gender, occupation, zipcode = row.split("|")
 
-        user = User(age=age, zipcode=zipcode)
+        user = User(user_id=user_id, age=age, zipcode=zipcode)
 
         db.session.add(user)
 
-        # for progress
-        if i % 100 == 0:
-            print i 
 
     db.session.commit()
-
-
 
 def load_movies():
     """Load movies from u.item into database."""
 
     print "Movies"
 
-    for i, row in enumerate(open("seed_data/u.item")):
+    for row in open("seed_data/u.item"):
         row = row.rstrip()
 
         movie_id, title, released_str, junk, imdb_url = row.split("|")[:5]
 
-    if released_str:
-        released_at = datetime.datetime.strptime(released_str, "%d-%b-%Y")
-    else:
-        released_at = None
+        if released_str:
+            release_date = datetime.datetime.strptime(released_str, "%d-%b-%Y")
+        else:
+            release_date = None
 
         title = title[:-7]
 
-        movie = Movie(title=title,
-                        released_at=released_at,
+        movie = Movie(movie_id=movie_id,
+                        title=title,
+                        release_date=release_date,
                         imdb_url=imdb_url)
 
         db.session.add(movie)
 
-        if i % 100 == 0:
-            print i 
 
     db.session.commit()
 
@@ -63,10 +61,12 @@ def load_ratings():
 
     print "Ratings"
 
-    for i, row in enumerate(open("seed_data/u.data")):
-        row = row.rstrip()
+    Rating.query.delete()
 
-        user_id, movie_id, score, timestamp = row.split("\t")
+    for row in open("seed_data/u.data"):
+        row = row.rstrip()
+        
+        user_id, movie_id, score, timestamp = row.split()
 
         user_id = int(user_id)
         movie_id = int(movie_id)
@@ -76,10 +76,8 @@ def load_ratings():
                         movie_id=movie_id,
                         score=score)
 
-        db.session.add(rating)
 
-        if i % 1000 == 0:
-            print i 
+        db.session.add(rating)
 
     db.session.commit()
 
@@ -97,55 +95,53 @@ def set_val_user_id():
     db.session.commit()
 
 def make_eye():
-    """ Generate user judgemental eye."""
+    """ Add ratings eye to database. """
 
-    eye = User(email="the-eye@of-judgment.com", password="evil")
+    eye = User(email='eye@ratings.com', password='wizard', age=None, zipcode=None)
     db.session.add(eye)
-    db.session.commmit()
+    db.session.commit()
 
-def eye_ratings():
-    """ Build eye ratings."""
+def give_eye_ratings():
+    """ supply eye with ratings. """
 
-    eye = User.query.filter_by(email="the-eye@of-judgment.com").one()
+    eye = User.query.filter_by(email='eye@ratings.com').one()
 
-    # store eye ratings for beratment messages 
+    r1 = Rating(user_id=eye.user_id, movie_id=1, score=1)
+    db.session.add(r1)
 
-        # Toy Story
-    r = Rating(user_id=eye.user_id, movie_id=1, score=1)
-    db.session.add(r)
+    r2 = Rating(user_id=eye.user_id, movie_id=1274, score=5)
+    db.session.add(r2)
 
-    # Robocop 3
-    r = Rating(user_id=eye.user_id, movie_id=1274, score=5)
-    db.session.add(r)
+    r3 = Rating(user_id=eye.user_id, movie_id=373, score=5)
+    db.session.add(r3)
 
-    # Judge Dredd
-    r = Rating(user_id=eye.user_id, movie_id=373, score=5)
-    db.session.add(r)
+    r4 = Rating(user_id=eye.user_id, movie_id=314, score=5)
+    db.session.add(r4)
 
-    # 3 Ninjas
-    r = Rating(user_id=eye.user_id, movie_id=314, score=5)
-    db.session.add(r)
+    r5 = Rating(user_id=eye.user_id, movie_id=95, score=1)
+    db.session.add(r5)
 
-    # Aladdin
-    r = Rating(user_id=eye.user_id, movie_id=95, score=1)
-    db.session.add(r)
-
-    # The Lion King
-    r = Rating(user_id=eye.user_id, movie_id=71, score=1)
-    db.session.add(r)
+    r6 = Rating(user_id=eye.user_id, movie_id=71, score=1)
+    db.session.add(r6)
 
     db.session.commit()
 
-########################################################################
 
 if __name__ == "__main__":
     connect_to_db(app)
 
-    # In case tables haven't been created, create them
+    # create tables if they have not been created already
     db.create_all()
 
-    # Import different types of data
+    # import data 
     load_users()
     load_movies()
     load_ratings()
     set_val_user_id()
+    make_eye()
+    give_eye_ratings()
+
+
+
+
+

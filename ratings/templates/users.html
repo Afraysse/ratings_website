@@ -1,15 +1,27 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="well spaced" style="width:60%">
-    <h2>Users</h2>
-    <ul>
-      {% for user in users %}
-          <li>
-              <a href="/users/{{ user.user_id }}">
-                {{ user.user_id }} ({{ user.email }})
-              </a>
-          </li>
-      {% endfor %}
-    </ul>
+<br>
+<div class="container">
+    <div class="row">
+        <div class="panel panel-primary filterable">
+            <div class="panel-heading">
+                <h3 class="panel-title">Users</h3>
+            </div>
+            <table class="table">
+                <tbody>
+                  {% for user in users %}
+                    <tr>
+                        <td><a href="/users/{{ user.user_id }}">
+                        {{ user.user_id }}</a></td>
+                        <td>{{ user.email }}</td>
+                        <td> {{ user.age }}</td>
+                        <td> {{ user.zipcode }}</td>
+                    </tr>
+                    {% endfor %} 
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
 {% endblock %}

@@ -1,7 +1,9 @@
 """Models and database functions for Ratings project."""
 
+import heapq
+import time
 from flask_sqlalchemy import SQLAlchemy
-import correlation
+from correlation import pearson 
 
 # This is the connection to the PostgreSQL database; we're getting this through
 # the Flask-SQLAlchemy helper library. On this, we can find the `session`
@@ -76,11 +78,8 @@ class Movie(db.Model):
 
     movie_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
-    release_date = db.Column(db.DateTime)
+    release_date = db.Column(db.DateTime, nullable=True)
     imdb_url = db.Column(db.String(200))
-    sequel_of_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'))
-
-    sequel_of = db.relationship("Movie")
 
     def __repr__(self):
         "<Movie movie_id={} title={}>".format(self.movie_id, self.title)
@@ -91,13 +90,13 @@ class Rating(db.Model):
     __tablename__ = "ratings"
 
     rating_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id')) 
-    movie_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False) 
+    movie_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'), nullable=False)
     score = db.Column(db.Integer)
 
     # establish backref relationships
-    user = db.relationship("User", backref=db.backref('users', order_by=rating_id))
-    movie = db.relationship("Movie", backref=db.backref('movies', order_by=rating_id))
+    user = db.relationship("User", backref=db.backref('ratings', order_by=rating_id))
+    movie = db.relationship("Movie", backref=db.backref('ratings', order_by=rating_id))
 
 ##############################################################################
 # Helper functions
