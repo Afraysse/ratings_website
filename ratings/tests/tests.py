@@ -86,24 +86,50 @@ class FlaskTestsLoggedIn(TestCase):
             with c.session_transaction() as sess:
                 sess['user_id'] = 1 
 
-        def test_login_page(self):
-            """ Test login page. """
+    def test_login_page(self):
+        """ Test login page. """
 
-            result = self.client.get("/users/1")
-            self.assertIn("Email", result.data)
+        result = self.client.get("/users/1")
+        self.assertIn("Email", result.data)
 
-        def test_homepage(self):
-            """ Test login page."""
+    def test_homepage(self):
+        """ Test login page."""
 
-            result = self.client.get("/")
-            self.assertIn("Profile", result.data)
-            self.assertNotIn("Login", result.data)
+        result = self.client.get("/")
+        self.assertIn("Profile", result.data)
+        self.assertNotIn("Login", result.data)
 
-        def user_list_page(self):
-            """ Test user list page."""
+    def test_movie_page(self):
+        """ Test login page."""
 
-            result = self.client.get("/users")
-            self.assertIn("")
+        result = self.client.get("/movies/1")
+        self.assertIn("Your Rating", result.data)
+        self.assertNotIn("Login", result.data)
+
+    def test_logout(self):
+        result = self.client.get("/logout", follow_redirects=True)
+        self.assertIn("Logged out.", result.data)
+
+class LoggedOut(TestCase):
+    """ Tests for when logged out of session."""
+
+    def setUp(self):
+        """ To do before every test. """
+
+        app.config['TESTING'] = True 
+        self.client = app.test_client()
+
+    def test_homepage(self):
+        """ Test homepage."""
+
+        result = self.client.get("/")
+        self.assertIn("Login", result.data)
+        self.assertNotIn("Profile", result.data)
+
+class FlaskTests(TestCase):
+
+
+
 
 
 
