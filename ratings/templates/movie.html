@@ -17,25 +17,26 @@ a, input {
   font-family: 'Homenaje', sans-serif;
 }
 
-
-
 </style>
 
 <div class="jumbotron top-header" id="user-info">
     <div class="container">
         <div class="row">
-          <div class="col-xs-12 col-md-2">
-            <img class="img-rounded img-responsive" height="300" width="300" src="/static/img/la_confidential.jpg">
-          </div>
           <div class="col-xs-12 col-md-6">
             <h2>{{ movie.title }}</h2>
             <div class="col-xs-12 col-lg-6">
-              <p>Released: {{ movie.release_date }}</p>
+              <b>Released:</b> {{ movie.release_date| datetimefilter("%b %d, %Y") }}
+          <br>
+              <b>IMDB:</b><a href="{{ movie.imdb_url }}" style="color:#ffffff">{{ movie.imdb_url }}</a>
 
-              <p>IMDB: <a href="{{ movie.imdb_url }}" style="color:#ffffff">{{ movie.imdb_url }}</a>
-              </p>
+              <p>Average rating: 
+              {% if avg_rating %}
+                {{ "{:.2f}".format(avg_rating) }}
+              {% else %}
+                {{ avg_rating }}
+              {% endif %}
+              <p> 
 
-              <p>Average rating: {{ average }}</p>
                 {% if prediction %}
                   <p>We predict you will rate this movie {{ prediction }}.</p>
                 {% endif %}
@@ -52,25 +53,30 @@ a, input {
               <i><a href="/rating_list" style="color:#ffffff">See All Ratings</a></i>
             </div>
           </div>
+          <div class="col-xs-12 col-md-2"></div>
           <div class="col-xs-12 col-md-4">
-              {% if "user_id" in session %}
+              {% if session.get('logged_email') %}
                 <h2>Your Rating</h2>
               {% if user_rating %}
                 <p>You currently rate this a {{ user_rating.score }}</p>
               {% endif %}
-                <form action="/movies/{{ movie.movie_id }}" method="POST">
+                <form action="/movies/{{ movie.movie_id }}/rate-movie">
                     <div class="form-group">
-                        <label>Rating:
-                          <input type="number" name="score"
-                             class="form-control input-sm">
-                        </label>
+                        <label><b>My Rating:<b></label>
+                          <select name="user_rating">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                          </select>
                     </div>
                   <input type="submit" value="Record Your Puny Rating"
                      class="btn btn-danger">
                 </form>
               {% endif %}
           </div>
-        </div><!-- /.row -->
+        </div>
       </div>
     </div>
 

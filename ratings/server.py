@@ -35,7 +35,13 @@ app.jinja_env.filters['datetimefilter'] = datetimefilter
 def index():
     """Homepage rendering."""
 
-    return render_template("homepage.html")
+    user_email = session.get('logged_email', None)
+
+    if user_email is not None:
+        user = User.query.filter(User.email == user_email).one()
+        return render_template("homepage.html", user=user)
+
+    return render_template("homepage.html", user=None)
 
 @app.route('/register', methods=['GET'])
 def get_register():
@@ -52,13 +58,23 @@ def post_register():
     age = int(request.form["age"])
     zipcode = request.form["zipcode"]
 
-    new_user = User(email=email, password=password, age=age, zipcode=zipcode)
+    if db.session.query(User).filter(User.email == email).first():
+        flash("Account already activated! Please login!", "danger")
+        return redirect('/login')
 
-    db.session.add(new_user)
-    db.session.commit()
+    else:
 
-    flash("User %s added." % email)
-    return redirect('/login')
+        new_user = User(email=email, password=password, age=age, zipcode=zipcode)
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        session["logged_email"] = email 
+        session["logged_user"] = new_user.user_id
+
+        flash("You've successfully created an account! You are now logged in!", "success")
+
+        return redirect('/')
 
 
 @app.route('/login', methods=['GET'])
@@ -75,20 +91,23 @@ def post_login():
     email = request.form["email"]
     password = request.form["password"]
 
-    user = User.query.filter_by(email=email).first()
+    if db.session.query(User).filter(User.email == email, 
+                                    User.password == password).first():
 
-    if not user:
-        flash("User not found!")
-        return redirect('/login')
+        flash("Login SUCCESS.", "success")
 
-    if user.password != password:
-        flash("Incorrect password!")
-        return redirect('/login')
+        # query to grab user's user_id to load profile page 
+        user = User.query.filter(User.email == email).one()
 
-    session["user_id"] = user.user_id
+        session["logged_email"] = email
+        session["logged_user"] = user.user_id 
 
-    flash("You've successfully logged in!")
-    return redirect('/users/%s' % user.user_id)
+        return redirect("/users/%s" % user.user_id)
+
+    else:
+        flash("Incorrect password. Try again!", "danger")
+        return redirect("/login")
+
 
 @app.route('/logout')
 def logout():
@@ -149,6 +168,8 @@ def movie_profile(movie_id):
     # Get the average rating of movie 
 
     rating_scores = [r.score for r in movie.ratings]
+
+    # to have float specifies formatting type of return 
     avg_rating = float(sum(rating_scores)) / len(rating_scores)
 
     prediction = None 
@@ -210,41 +231,80 @@ def movie_profile(movie_id):
     else:
         beratement = None 
 
+    # query for scores and score count 
+    unordered_ratings = db.session.query(Rating.score, func.count(Rating.score)).filter(Rating.movie_id == movie_id).group_by(Rating.score)
+    ordered_ratings = unordered_ratings.order_by(Rating.score)
+    # count_score will return a list of tuples (score, count)
+    count_score = ordered_ratings.all()
+
     return render_template("movie.html", movie=movie, 
                                         user_rating=user_rating,
-                                        average=avg_rating,
+                                        avg_rating=avg_rating,
+                                        count_score=count_score,
                                         prediction=prediction,
                                         eye_rating=eye_rating,
                                         difference=difference,
                                         beratement=beratement)
 
-@app.route('/movies/<int:movie_id>', methods=['POST'])
-def movie_profile_post(movie_id):
-    """ Movie profile post."""
+# @app.route('/movies/<int:movie_id>', methods=['POST'])
+# def movie_profile_post(movie_id):
+#     """ Movie profile post."""
 
-    score = int(request.form["score"])
+#     score = int(request.form["score"])
 
-    user_id = session.get("user_id")
-    if not user_id:
-        raise Exception("No user logged in.")
+#     user_id = session.get("user_id")
+#     if not user_id:
+#         raise Exception("No user logged in.")
 
-    rating = Rating.query.filter_by(user_id=user_id, movie_id=movie_id, score=score)
-    if rating:
-        rating.score = score
-        flash("Rating updated.")
+#     rating = Rating.query.filter_by(user_id=user_id, movie_id=movie_id, score=score)
+#     if rating:
+#         rating.score = score
+#         flash("Rating updated.")
 
+#     else:
+#         rating = Rating(user_id=user_id, movie_id=movie_id, score=score)
+#         flash("Rating added.")
+#         db.session.add(rating)
+
+#     db.session.commit()
+
+#     return redirect("/movies/%s" % movie_id)
+
+@app.route('/movies/<int:movie_id>/rate-movie')
+def rate_movie(movie_id):
+    """ Grabs user rating score for movie."""
+
+    user_rating = request.args.get("user_rating")
+    # grab user_id from session email address 
+    user_email = session["logged_email"]
+
+    user = User.query.filter(User.email == user_email).one() 
+
+    user_id = user.user_id
+
+    # check for user rating in db 
+    # if user has rated before, update the value 
+    # else, add new rating to db via movie_id and user_id 
+    if db.session.query(Rating.score).filter(Rating.movie_id == movie_id, Rating.user_id == user_id).all():
+        # when updating a value, use the key-value pair in update()
+        db.session.query(Rating).filter(Rating.movie_id == movie_id, Rating.user_id == user_id).update({"score": user_rating})
+        db.session.commit()
+
+        flash("Your rating for this movie has been updated to %s." % (user_rating), "warning")
+        return redirect("/users/%s" % user_id)
     else:
-        rating = Rating(user_id=user_id, movie_id=movie_id, score=score)
-        flash("Rating added.")
-        db.session.add(rating)
+        db.session.add(Rating(movie_id=movie_id, user_id=user_id, score=user_rating))
+        db.session.commit()
 
-    db.session.commit()
+        flash("You have rated this movie a %s." % (user_rating), "info")
 
-    return redirect("/movies/%s" % movie_id)
+        return redirect("/users/%s" % user_id)
+
+    return render_template("rate_movie.html", user_rating=user_rating)
 
 # @app.route('/rating_list', methods=['GET']):
 # def movie_rating_list(movie_id):
-    
+
 
 
 #####################################################################################
