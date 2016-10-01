@@ -18,8 +18,6 @@ The 'Eye' serves as the app's scrutinzing force. So, find the movies you love, r
 
 **Back-end:** [Python](https://www.python.org/), [Flask](http://flask.pocoo.org/), [Jinja2](http://jinja.pocoo.org/docs/dev/), [PostgreSQL](http://www.postgresql.org/), [SQLAlchemy](http://www.sqlalchemy.org/)
 
-**Libraries:** [SQLAlchemy-Searchable](https://sqlalchemy-searchable.readthedocs.io)
-
 **Data Set:** [100k MovieLens](http://grouplens.org/datasets/movielens/100k/)
 
 ## <a name="features"></a>Features
