@@ -128,45 +128,53 @@ class LoggedOut(TestCase):
 
 class FlaskTests(TestCase):
 
+    def setUp(self):
+        """ To do before every test."""
 
+        self.client = app.test_client()
+        app.config['TESTING'] = True 
 
+    def test_login_flask_route(self):
+        """ Non-database test."""
 
+        result = self.client.get("/login")
+        self.assertEqual(result.status_code, 200)
+        self.assertIn('<h1>Login</h1>', result.data)
 
+    def tearDown(self):
+        print ("tearDown ran")
 
+class MyAppIntegrationTestCase(TestCase):
 
+    def setUp(self):
+        self.client = server.app.test_client()
+        server.app.config['TESTING'] = True
+        server.app.config['DEBUG'] = False 
 
+    def test_home(self):
+        test_client = server.app.test_client()
+        result = test_client.get('/')
+        self.assertIn('<h2 id="title" style="color: #ffffff">Cinematical Judgement</h2>', result.data)
 
+    def test_users_list(self):
+        test_client = server.app.test_client()
+        result = test_client.get('/users')
+        self.assertIn('<h3 class="panel-title">Users</h3>', result.data)
 
+    def test_movies_list(self):
+        test_client = server.app.test_client()
+        result = test_client.get('/movies')
+        self.assertIn('<h2 id="movie_title">Movies</h2>', result.data)
 
+    def test_user_profile(self):
+        test_client = server.app.test_client()
+        result = test_client.get('/user/1')
+        self.assertIn('<h3>Ratings</h3>', result.data)
 
+    def tearDown(self):
+        print ("tearDown ran")
 
+################################################################################
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+if __name__ == "__main__":
+    unittest.main()
